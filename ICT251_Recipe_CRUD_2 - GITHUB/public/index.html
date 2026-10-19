@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080d20">
+    <title>Personal Recipe Card</title>
+
+    <style>
+        :root {
+            --bg: #080d20;
+            --panel: #111a35;
+            --indigo: #6366f1;
+            --blue: #38bdf8;
+            --text: #f1f5f9;
+            --muted: #a5b4cf;
+            --border: #293758;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, #202b62, transparent 38%),
+                radial-gradient(circle at bottom right, #103d65, transparent 35%),
+                var(--bg);
+        }
+
+        .container {
+            width: min(1200px, 92%);
+            margin: auto;
+            padding: 38px 0 60px;
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        h1 {
+            margin: 10px 0;
+            font-size: clamp(30px, 5vw, 46px);
+        }
+
+        h1 span {
+            color: var(--blue);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 350px minmax(0, 1fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .panel {
+            min-width: 0;
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: rgba(17, 26, 53, 0.96);
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 21px;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: #dbeafe;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            background: #0b132a;
+            color: var(--text);
+            font: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+        }
+
+        textarea {
+            min-height: 85px;
+            resize: vertical;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            padding: 11px 15px;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.15s, opacity 0.15s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.6;
+        }
+
+        .primary {
+            width: 100%;
+            color: #071225;
+            background: linear-gradient(110deg, var(--blue), #818cf8);
+        }
+
+        .secondary {
+            width: 100%;
+            margin-top: 9px;
+            color: var(--text);
+            background: #263454;
+        }
+
+        .toolbar {
+            margin-bottom: 18px;
+        }
+
+        .count {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 0 0 16px;
+        }
+
+        .recipes {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .recipe {
+            min-width: 0;
+            padding: 19px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: linear-gradient(145deg, #172447, #101a34);
+            overflow-wrap: anywhere;
+        }
+
+        .category {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 5px 9px;
+            border-radius: 20px;
+            color: #bae6fd;
+            background: #123858;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .recipe h3 {
+            margin: 0 0 9px;
+            font-size: 18px;
+        }
+
+        .recipe p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.65;
+            white-space: pre-line;
+        }
+
+        .meta {
+            padding: 10px;
+            border-radius: 9px;
+            color: #c7d2fe !important;
+            background: rgba(8, 13, 32, 0.55);
+            font-size: 12px !important;
+            line-height: 1.9 !important;
+        }
+
+        .recipe-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .edit, .delete {
+            flex: 1;
+        }
+
+        .edit {
+            color: #e0e7ff;
+            background: #3730a3;
+        }
+
+        .delete {
+            color: #ffe4e6;
+            background: #881337;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .success {
+            color: #bbf7d0;
+            background: #123b32;
+        }
+
+        .error {
+            color: #fecdd3;
+            background: #4c1728;
+        }
+
+        .empty {
+            grid-column: 1 / -1;
+            padding: 35px 15px;
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed var(--border);
+            border-radius: 14px;
+            line-height: 1.7;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 950px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .recipes {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+
+            .container {
+                width: 94%;
+                padding-top: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <header>
+            <div class="eyebrow">Your kitchen · Your collection</div>
+            <h1>Personal <span>Recipe Card</span></h1>
+            <p class="subtitle">
+                Discover, organise and manage your favourite recipes
+                in one place.
+            </p>
+        </header>
+
+        <div id="message" class="message"
+             role="status" aria-live="polite"></div>
+
+        <section class="layout">
+            <div class="panel">
+                <h2 id="form-heading">Add a Recipe</h2>
+
+                <form id="recipe-form">
+                    <input type="hidden" id="recipe-id">
+
+                    <div class="field">
+                        <label for="title">Recipe title</label>
+                        <input id="title" required maxlength="120"
+                               placeholder="e.g. Zambian Nshima">
+                    </div>
+
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <textarea id="description" required
+                                  placeholder="Briefly describe your recipe"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Choose a category</option>
+                            <option>Breakfast</option>
+                            <option>Main Course</option>
+                            <option>Side Dish</option>
+                            <option>Dessert</option>
+                            <option>Snack</option>
+                            <option>Beverage</option>
+                            <option>Sauce</option>
+                            <option>General</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="ingredients">Ingredients</label>
+                        <textarea id="ingredients" required
+                                  placeholder="List ingredients and quantities"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="instructions">Instructions</label>
+                        <textarea id="instructions" required
+                                  placeholder="Describe the preparation steps"></textarea>
+                    </div>
+
+                    <div class="two-columns">
+                        <div class="field">
+                            <label for="prep-time">Prep time (minutes)</label>
+                            <input id="prep-time" type="number"
+                                   min="0" step="1" required value="10">
+                        </div>
+
+                        <div class="field">
+                            <label for="cook-time">Cook time (minutes)</label>
+                            <input id="cook-time" type="number"
+                                   min="0" step="1" required value="20">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="servings">Servings</label>
+                        <input id="servings" type="number"
+                               min="1" step="1" required value="2">
+                    </div>
+
+                    <button class="primary" type="submit" id="submit-button">
+                        Save Recipe
+                    </button>
+
+                    <button class="secondary" type="button"
+                            id="cancel-button" hidden>
+                        Cancel Editing
+                    </button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Your Recipe Collection</h2>
+
+                <div class="toolbar">
+                    <input id="search" type="search"
+                           placeholder="Search recipes or ingredients..."
+                           aria-label="Search recipes">
+                </div>
+
+                <p class="count" id="recipe-count">Loading recipes...</p>
+
+                <div class="recipes" id="recipes">
+                    <div class="empty">Loading your recipes...</div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            Personal Recipe Card · Node.js · Express · SQLite
+        </footer>
+    </main>
+
+    <script>
+        "use strict";
+
+        const API_URL = "/api/recipes";
+
+        const form = document.getElementById("recipe-form");
+        const recipeId = document.getElementById("recipe-id");
+        const title = document.getElementById("title");
+        const description = document.getElementById("description");
+        const ingredients = document.getElementById("ingredients");
+        const instructions = document.getElementById("instructions");
+        const category = document.getElementById("category");
+        const prepTime = document.getElementById("prep-time");
+        const cookTime = document.getElementById("cook-time");
+        const servings = document.getElementById("servings");
+
+        const recipesContainer = document.getElementById("recipes");
+        const recipeCount = document.getElementById("recipe-count");
+        const searchInput = document.getElementById("search");
+        const message = document.getElementById("message");
+        const formHeading = document.getElementById("form-heading");
+        const submitButton = document.getElementById("submit-button");
+        const cancelButton = document.getElementById("cancel-button");
+
+        let allRecipes = [];
+        let messageTimer;
+
+        function showMessage(text, type = "success") {
+            clearTimeout(messageTimer);
+            message.textContent = text;
+            message.className = `message show ${type}`;
+
+            messageTimer = setTimeout(() => {
+                message.className = "message";
+            }, 4500);
+        }
+
+        async function apiRequest(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    "Content-Type": "application/json",
+                    ...options.headers
+                }
+            });
+
+            const data = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                throw new Error(
+                    data?.error ||
+                    `Request failed with status ${response.status}.`
+                );
+            }
+
+            return data;
+        }
+
+        function addTextElement(parent, tag, className, text) {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            element.textContent = String(text ?? "");
+            parent.appendChild(element);
+            return element;
+        }
+
+        function createRecipeCard(recipe) {
+            const card = document.createElement("article");
+            card.className = "recipe";
+
+            addTextElement(card, "span", "category", recipe.category);
+            addTextElement(card, "h3", "", recipe.title);
+            addTextElement(card, "p", "", recipe.description);
+
+            addTextElement(
+                card, "p", "meta",
+                `Preparation: ${recipe.prep_time_minutes} min\n` +
+                `Cooking: ${recipe.cook_time_minutes} min\n` +
+                `Servings: ${recipe.servings}`
+            );
+
+            addTextElement(
+                card, "p", "", `Ingredients: ${recipe.ingredients}`
+            );
+
+            addTextElement(
+                card, "p", "", `Instructions: ${recipe.instructions}`
+            );
+
+            const actions = document.createElement("div");
+            actions.className = "recipe-actions";
+
+            const editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "edit";
+            editButton.textContent = "Edit";
+            editButton.addEventListener("click", () => startEditing(recipe));
+
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "delete";
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", () => deleteRecipe(recipe));
+
+            actions.append(editButton, deleteButton);
+            card.appendChild(actions);
+
+            return card;
+        }
+
+        function renderRecipes() {
+            const query = searchInput.value.trim().toLowerCase();
+
+            const filteredRecipes = allRecipes.filter(recipe => {
+                const text = [
+                    recipe.title,
+                    recipe.description,
+                    recipe.ingredients,
+                    recipe.instructions,
+                    recipe.category
+                ].join(" ").toLowerCase();
+
+                return text.includes(query);
+            });
+
+            recipesContainer.replaceChildren();
+
+            recipeCount.textContent =
+                `${filteredRecipes.length} recipe(s) shown`;
+
+            if (filteredRecipes.length === 0) {
+                addTextElement(
+                    recipesContainer,
+                    "div",
+                    "empty",
+                    query
+                        ? "No recipes match your search."
+                        : "No recipes yet. Add your first recipe."
+                );
+                return;
+            }
+
+            filteredRecipes.forEach(recipe => {
+                recipesContainer.appendChild(createRecipeCard(recipe));
+            });
+        }
+
+        async function loadRecipes() {
+            recipeCount.textContent = "Loading recipes...";
+
+            try {
+                const data = await apiRequest(API_URL);
+
+                if (!Array.isArray(data)) {
+                    throw new Error("Unexpected response from the server.");
+                }
+
+                allRecipes = data;
+                renderRecipes();
+            } catch (error) {
+                recipesContainer.replaceChildren();
+
+                addTextElement(
+                    recipesContainer,
+                    "div",
+                    "empty",
+                    "Unable to load recipes. Check the server and refresh."
+                );
+
+                recipeCount.textContent = "Could not load recipes.";
+                showMessage(error.message, "error");
+                console.error("Loading recipes failed:", error);
+            }
+        }
+
+        function resetForm() {
+            form.reset();
+            recipeId.value = "";
+            formHeading.textContent = "Add a Recipe";
+            submitButton.textContent = "Save Recipe";
+            cancelButton.hidden = true;
+            prepTime.value = 10;
+            cookTime.value = 20;
+            servings.value = 2;
+        }
+
+        function startEditing(recipe) {
+            recipeId.value = String(recipe.id);
+            title.value = recipe.title;
+            description.value = recipe.description;
+            ingredients.value = recipe.ingredients;
+            instructions.value = recipe.instructions;
+            category.value = recipe.category;
+            prepTime.value = recipe.prep_time_minutes;
+            cookTime.value = recipe.cook_time_minutes;
+            servings.value = recipe.servings;
+
+            formHeading.textContent = "Edit Recipe";
+            submitButton.textContent = "Update Recipe";
+            cancelButton.hidden = false;
+
+            form.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        form.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const recipe = {
+                title: title.value.trim(),
+                description: description.value.trim(),
+                ingredients: ingredients.value.trim(),
+                instructions: instructions.value.trim(),
+                category: category.value,
+                prep_time_minutes: Number(prepTime.value),
+                cook_time_minutes: Number(cookTime.value),
+                servings: Number(servings.value)
+            };
+
+            if (
+                !recipe.title ||
+                !recipe.description ||
+                !recipe.ingredients ||
+                !recipe.instructions ||
+                !recipe.category
+            ) {
+                showMessage("Please complete all recipe fields.", "error");
+                return;
+            }
+
+            if (
+                !Number.isInteger(recipe.prep_time_minutes) ||
+                recipe.prep_time_minutes < 0 ||
+                !Number.isInteger(recipe.cook_time_minutes) ||
+                recipe.cook_time_minutes < 0 ||
+                !Number.isInteger(recipe.servings) ||
+                recipe.servings < 1
+            ) {
+                showMessage("Enter valid preparation times and servings.", "error");
+                return;
+            }
+
+            const editingId = recipeId.value;
+            const url = editingId
+                ? `${API_URL}/${encodeURIComponent(editingId)}`
+                : API_URL;
+
+            submitButton.disabled = true;
+            cancelButton.disabled = true;
+            submitButton.textContent = editingId ? "Updating..." : "Saving...";
+
+            try {
+                await apiRequest(url, {
+                    method: editingId ? "PUT" : "POST",
+                    body: JSON.stringify(recipe)
+                });
+
+                resetForm();
+                await loadRecipes();
+
+                showMessage(
+                    editingId
+                        ? "Recipe updated successfully."
+                        : "Recipe added successfully."
+                );
+            } catch (error) {
+                showMessage(error.message, "error");
+            } finally {
+                submitButton.disabled = false;
+                cancelButton.disabled = false;
+                submitButton.textContent = recipeId.value
+                    ? "Update Recipe"
+                    : "Save Recipe";
+            }
+        });
+
+        async function deleteRecipe(recipe) {
+            if (!window.confirm(`Delete "${recipe.title}"?`)) return;
+
+            try {
+                await apiRequest(
+                    `${API_URL}/${encodeURIComponent(recipe.id)}`,
+                    { method: "DELETE" }
+                );
+
+                if (recipeId.value === String(recipe.id)) resetForm();
+
+                await loadRecipes();
+                showMessage("Recipe deleted successfully.");
+            } catch (error) {
+                showMessage(error.message, "error");
+            }
+        }
+
+        searchInput.addEventListener("input", renderRecipes);
+        cancelButton.addEventListener("click", resetForm);
+
+        loadRecipes();
+    </script>
+</body>
+</html>
